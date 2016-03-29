@@ -3,16 +3,19 @@ package com.example.administrator.audiorecorder;
 
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import butterknife.ButterKnife;
@@ -24,6 +27,7 @@ import butterknife.OnClick;
 public class CallingService extends Service{
     public static final String EXTRA_CALL_NUMBER = "call_number";
     protected View rootView;
+
 
 
     @InjectView(R.id.tv_call_number)
@@ -152,4 +156,12 @@ public class CallingService extends Service{
 
         if (rootView != null && windowManager != null) windowManager.removeView(rootView);
     }
+
+    @OnClick(R.id.changeSize)
+     public void sizechange() {
+    params.height = 500;
+    params.width = 500;
+    params.gravity = Gravity.TOP;
+    windowManager.updateViewLayout(rootView, params);
+}
 }
