@@ -19,7 +19,7 @@ import java.util.Date;
  * Created by Administrator on 2016-03-26.
  */
 public class audioRecorder {
-    private static final int RECORDER_SAMPLERATE = 22050;
+    private static final int RECORDER_SAMPLERATE = 16000;
     private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
     private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     private AudioRecord recorder = null;

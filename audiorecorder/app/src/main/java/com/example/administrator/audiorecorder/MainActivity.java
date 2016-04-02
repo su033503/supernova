@@ -40,12 +40,6 @@ public class    MainActivity extends AppCompatActivity {
 
                     ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).updateViewLayout(viewRoot,params);
 
-//                    String EXPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-//                    String convertPath = EXPath + "/testconvert";
-//                    FLAC_FileEncoder a = new FLAC_FileEncoder();
-//                    File input = new File(convertPath, "1.wav");
-//                    File output = new File(convertPath, "1.flac");
-//                    a.encode(input, output);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

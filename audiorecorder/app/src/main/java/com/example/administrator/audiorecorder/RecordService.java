@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,18 +30,16 @@ import javaFlacEncoder.FLAC_FileEncoder;
 /**
  * Created by HP on 2016-03-22.
  */
-public class RecordService extends Service {
+public class RecordService extends Service {    //통화 녹음 서비스
     public static final String EXTRA_CALL_NUMBER = "call_number";
     protected View rootView;
-    MyVoicePlayer mvp = new MyVoicePlayer();
-    audioRecorder arc = new audioRecorder();
+    MyVoicePlayer mvp = new MyVoicePlayer();    //Mediarecorder를 이용한 녹음, 녹음포맷: mp4
+    audioRecorder arc = new audioRecorder();    //Audiorecord를 이용한 녹음, 녹음포맷: 16bit single pcm
+    int fixedSize;
 
     @InjectView(R.id.tv_call_number)
     TextView tv_call_number;
-
-
-
-    String call_number;
+    String call_number="";
 
     WindowManager.LayoutParams params;
     private WindowManager windowManager;
@@ -48,7 +47,6 @@ public class RecordService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-
         // Not used
         return null;
     }
@@ -57,17 +55,16 @@ public class RecordService extends Service {
     public void onCreate() {
         super.onCreate();
 
-
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         Display display = windowManager.getDefaultDisplay();
         Point size = new Point();
         display.getSize( size );
-        int width = (int) (size.x * 0.9); //Display ?ъ씠利덉쓽 90%
+        fixedSize = (int) (size.x * 0.125);   //최초 크기조절.
 
 
         params = new WindowManager.LayoutParams(
-                width,
+                0,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -75,14 +72,15 @@ public class RecordService extends Service {
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
                 PixelFormat.TRANSLUCENT);
-
+        params.width = fixedSize;
+        params.height = fixedSize;
+        params.gravity = Gravity.TOP;   //위치를 위쪽
+        params.x = size.x;               //오른쪽구석에 고정
 
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        rootView = layoutInflater.inflate(R.layout.call_popup_top, null);
+        rootView = layoutInflater.inflate(R.layout.stt_dialog, null);
         ButterKnife.inject(this, rootView);
         setDraggable();
-
-
     }
 
 
@@ -129,9 +127,10 @@ public class RecordService extends Service {
        // mvp.record();
         arc.startRecording();
         if (!TextUtils.isEmpty(call_number)) {
+
             tv_call_number.setText(call_number);
         }
-
+        System.out.println("CallNumber Test : "+call_number);
 
         return START_REDELIVER_INTENT;
     }
@@ -139,13 +138,12 @@ public class RecordService extends Service {
 
     private void setExtra(Intent intent) {
 
-        if (intent == null) {
+        if (intent == null)
+        {
             removePopup();
             return;
         }
-
         call_number = intent.getStringExtra(EXTRA_CALL_NUMBER);
-
 
     }
 
@@ -157,12 +155,30 @@ public class RecordService extends Service {
     }
 
 
-    @OnClick(R.id.btn_close)
     public void removePopup() {
         //mvp._stopRec();
         arc.stopRecording();
 
         if (rootView != null && windowManager != null) windowManager.removeView(rootView);
+    }
+    @OnClick(R.id.btn_changeSize)
+    public void sizechange() {
+        if(params.width==fixedSize && params.height==fixedSize) {
+            Display display = windowManager.getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            params.height = 1000;
+            params.width = size.x;
+            params.y = 150;
+            windowManager.updateViewLayout(rootView, params);
+        }
+        else
+        {
+            params.y = 100;
+            params.width = fixedSize;
+            params.height = fixedSize;
+            windowManager.updateViewLayout(rootView, params);
+        }
     }
 }
 

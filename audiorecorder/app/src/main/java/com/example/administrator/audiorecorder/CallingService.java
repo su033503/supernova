@@ -1,7 +1,5 @@
 package com.example.administrator.audiorecorder;
 
-
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -28,13 +26,8 @@ public class CallingService extends Service{
     public static final String EXTRA_CALL_NUMBER = "call_number";
     protected View rootView;
 
-
-
     @InjectView(R.id.tv_call_number)
     TextView tv_call_number;
-
-
-
     String call_number;
 
     WindowManager.LayoutParams params;
