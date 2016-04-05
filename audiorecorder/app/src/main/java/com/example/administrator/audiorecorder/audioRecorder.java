@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Timer;
 
 /**
  * Created by Administrator on 2016-03-26.
@@ -66,6 +67,7 @@ public class audioRecorder {        //오디오 레코더
         int infinityCount = 0;          //녹음 데시벨 측정시 입력이 없으면 -infinity가 나옴. infinity가 몇번나오는지 체크
         int recordCount = 0;            //while문을 몇번 루프돌았는지 체크. 이 변수와 infinityOccur를 통해서 infinity의 연속성을 체크
         int infinityOccur = 0;          //infinity가 발생한 순간의 recordCount값을 기록. 다음번 루프시 infinity가 연속인지 아닌지 체크하기위함.
+        int recordTime = 0;
         // Write the output audio in byte
         final String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath();      //파일경로지정하는 부분
         File dir = new File(sdPath+"/myvoice");
@@ -85,7 +87,7 @@ public class audioRecorder {        //오디오 레코더
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
+        outerLoop:      //바깥쪽 while문 라벨지정.
         while (isRecording) {           //while문루프. 녹음중이면 계속해서 바이트단위로 데이터를 읽어와서 os에 쓴다.
             // gets the voice output from microphone to byte format
             recordCount++;                  //while문 몇번째 돌고있는지 체크
@@ -109,8 +111,11 @@ public class audioRecorder {        //오디오 레코더
             try {           //os에 데이터를 쓴다.
                 // // writes the data to file from buffer
                 // // stores the voice buffer
+                //1번 쓸때마다 2kb의 파일크기 = 0.064초 짜리 데이터
+                //156번 쓰면 약 10초짜리 파일생성.
                 byte bData[] = short2byte(sData);
                 os.write(bData, 0, BufferElements2Rec * BytesPerElement);
+                recordTime ++;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -124,11 +129,21 @@ public class audioRecorder {        //오디오 레코더
                 infinityOccur = recordCount;        //현재시점을 기록
             }
             if(infinityCount == 5) {    //count가 5인경우. 즉 4번 -infinity가 발생하면
+                if(recordTime < 156)        //현재 레코드타임이 156번 미만. 즉 현재 녹음데이터의 길이가 10초가 안될경우 처음으로 돌아가서 계속 녹음하도록 함
+                {
+                    infinityCount = 0;      //infinityCount만 0으로 초기화해주면 문장과 문장사이의 긴 침묵은 사라진채로 녹음될것임.
+                    continue outerLoop;     //바깥쪽루틴으로 한번에 돌아가도록 지정된 while 라벨이름을 언급.
+                }
                 break;          //데이터를 쓰는 while루틴에서 벗어남.
             }
+
         }
         try {
+            System.out.println(time);
             os.close();         //벗어남과 동시에 os를 닫아줌.
+            File file1 = new File(filePath);
+            if(recordTime == 0)
+                file1.delete();
             if(isRecording == true)     //isRecording이 true이면서 여기에 도달했다는 것은 연속성체크에 걸려서 나온것일뿐 녹음은 현재진행중이므로 다시 writeAudioDataToFile()메소드를 실행. 즉 이 메소드의 처음으로 돌아감.
                 writeAudioDataToFile();     //처음으로 돌아가면 새로운 파일명을 가지고 os객체를 만들어 데이터를 기록하게됨.
         } catch (IOException e) {
@@ -138,6 +153,7 @@ public class audioRecorder {        //오디오 레코더
 
     public void stopRecording() {       //녹음중지 메소드
         // stops the recording activity
+        System.out.println("stopRecord");
         if (null != recorder) {
             isRecording = false;        //녹음중상태를 false로 변경 writeAudioDatatofile()메소드 실행을 그만하게됨.
             recorder.stop();            //recorder 정지

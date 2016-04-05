@@ -158,7 +158,7 @@ public class RecordService extends Service {    //통화 녹음 서비스
     public void removePopup() {
         //mvp._stopRec();
         arc.stopRecording();
-
+        System.out.println("remove popup");
         if (rootView != null && windowManager != null) windowManager.removeView(rootView);
     }
     @OnClick(R.id.btn_changeSize)
