@@ -5,6 +5,7 @@ package com.example.administrator.audiorecorder;
  */
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Environment;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
@@ -135,6 +137,18 @@ public class RecordService extends Service {    //통화 녹음 서비스
         return START_REDELIVER_INTENT;
     }
 
+    public void addTextDialog(String dialog) {
+        LinearLayout linearLayout;
+        TextView Dialog = new TextView(this);
+        Dialog.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        Dialog.setBackgroundColor(Color.parseColor("#00FFFFFF"));
+        Dialog.setPadding(20, 10, 10, 10);
+        Dialog.setTextColor(Color.parseColor("#FF7200"));
+        Dialog.setTextSize(13);
+        Dialog.setText(dialog);
+        linearLayout=(LinearLayout)rootView.findViewById(R.id.layout);
+        linearLayout.addView(Dialog);
+    }
 
     private void setExtra(Intent intent) {
 
@@ -171,6 +185,7 @@ public class RecordService extends Service {    //통화 녹음 서비스
             params.width = size.x;
             params.y = 150;
             windowManager.updateViewLayout(rootView, params);
+            addTextDialog("sizechanged");
         }
         else
         {
