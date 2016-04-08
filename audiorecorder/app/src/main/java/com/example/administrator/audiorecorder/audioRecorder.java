@@ -20,13 +20,13 @@ import java.util.Timer;
  * Created by Administrator on 2016-03-26.
  */
 public class audioRecorder {        //오디오 레코더
-    private static final int RECORDER_SAMPLERATE = 16000;       //16000 HZ 주파수 설정
+    private static final int RECORDER_SAMPLERATE = 44100;       //16000 HZ 주파수 설정
     private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;       //모노
     private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;          //PCM 16 BIt
     private AudioRecord recorder = null;        //사용할 오디오레코더 객체 recorder
     private Thread recordingThread = null;      //쓰레드사용
     private boolean isRecording = false;        //녹음중을 나타내는 boolean
-    int BufferElements2Rec = 1024; // want to play 2048 (2K) since 2 bytes we use only 1024
+    int BufferElements2Rec = 2048; // want to play 2048 (2K) since 2 bytes we use only 1024
     int BytesPerElement = 2; // 2 bytes in 16bit format
 
     public audioRecorder() {
@@ -129,7 +129,7 @@ public class audioRecorder {        //오디오 레코더
                 infinityOccur = recordCount;        //현재시점을 기록
             }
             if(infinityCount == 5) {    //count가 5인경우. 즉 4번 -infinity가 발생하면
-                if(recordTime < 156)        //현재 레코드타임이 156번 미만. 즉 현재 녹음데이터의 길이가 10초가 안될경우 처음으로 돌아가서 계속 녹음하도록 함
+                if(recordTime < 80)        //현재 레코드타임이 156번 미만. 즉 현재 녹음데이터의 길이가 10초가 안될경우 처음으로 돌아가서 계속 녹음하도록 함
                 {
                     infinityCount = 0;      //infinityCount만 0으로 초기화해주면 문장과 문장사이의 긴 침묵은 사라진채로 녹음될것임.
                     continue outerLoop;     //바깥쪽루틴으로 한번에 돌아가도록 지정된 while 라벨이름을 언급.
