@@ -1,6 +1,8 @@
-package supernova.com.callhelper;
+package com.example.administrator.audiorecorder;
 
 import android.os.Environment;
+import android.util.Log;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Scanner;
@@ -50,6 +53,8 @@ public class SpeechServerConnection extends Thread{
 
     public void run(){
 
+        Log.w("콜 서버커넥션","run() start");
+
         byte[] data = null;
         OutputStream out = null;
 
@@ -61,12 +66,14 @@ public class SpeechServerConnection extends Thread{
             HttpsURLConnection httpconn = (HttpsURLConnection)con;  //URL을 이용해 커넥션 생성
             httpconn.setRequestMethod("POST");  //post메서드를 이용해 http통신
             httpconn.setDoOutput(true); //data를 보내기위해 설정
-            //httpconn.setRequestProperty("Content-Type", "audio/l16; rate=16000");   //pcm파일용 헤더
-            httpconn.setRequestProperty("Content-Type", "audio/x-flac; rate=44100");   //flac파일용 헤더
+            httpconn.setConnectTimeout(5000);
+            httpconn.setReadTimeout(5000);
+            httpconn.setRequestProperty("Content-Type", "audio/l16; rate=44100");   //pcm파일용 헤더
+            //httpconn.setRequestProperty("Content-Type", "audio/x-flac; rate=44100");   //flac파일용 헤더
 
             httpconn.connect(); //연결
             try {    //파일 입력용 try문
-                String fileDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + fileName;  //불러올 파일 (폴더생성시 중간에 입력)
+                String fileDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/myvoice/" + fileName;  //불러올 파일 (폴더생성시 중간에 입력)
                 File file = new File(fileDir);  //파일 open
                 FileInputStream fis = new FileInputStream(file);    //파일을 input stream 에 연결
 
@@ -74,6 +81,11 @@ public class SpeechServerConnection extends Thread{
                 fis.read(data); //파일 내용을 읽어옴
 
                 fis.close();    //스트림 close
+            }catch(SocketTimeoutException e){
+                Log.w("콜 서버커넥션", "소켓 타임아웃");
+                isDone=isError=true;
+                result="타임 아웃";
+                return;
             }catch (FileNotFoundException e){
                 e.printStackTrace();
             }
@@ -102,6 +114,7 @@ public class SpeechServerConnection extends Thread{
                     JSONObject trans0 = (JSONObject) alter.get(0);
 
                     result = trans0.get("transcript").toString();   //결과 중 제일 처음 값(=제일 가능성이 높은 값)을 result에 저장
+                    Log.w("콜 서버커넥션","결과:"+result);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }

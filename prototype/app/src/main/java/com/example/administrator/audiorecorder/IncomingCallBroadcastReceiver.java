@@ -23,7 +23,7 @@ public class IncomingCallBroadcastReceiver extends BroadcastReceiver{   //전화
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG,"onReceive()");
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-        Intent ringIntent = new Intent(context, CallingService.class);
+        //Intent ringIntent = new Intent(context, CallingService.class);
         Intent callIntent = new Intent(context, RecordService.class);
 
 
